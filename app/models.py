@@ -55,6 +55,26 @@ class User(db.Model, UserMixin):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'reset': self.id}).decode('utf-8')
 
+    def generate_changeEmail_token(self, newEmail, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'changeEmail': self.id, 'newEmail': newEmail}).decode('utf-8')
+
+    def changeEmail(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        if data.get('changeEmail') != self.id:
+            return False
+        newEmail = data.get('newEmail')
+        if newEmail:
+            if User.query.filter_by(email=newEmail).first() is None:
+                self.email = newEmail
+                db.session.add(self)
+                return True
+        return False
+
     @staticmethod
     def confirm_reset(token, password):
         s = Serializer(current_app.config['SECRET_KEY'])
