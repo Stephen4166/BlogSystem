@@ -59,7 +59,7 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[
         DataRequired(), EqualTo('password2', message='Passwords must match.')
     ])
-    password2 = PasswordField('Password2', validators=[DataRequired()])
+    password2 = PasswordField('Password Again', validators=[DataRequired()])
     submit = SubmitField('Register')
 
     def validate_email(self, field):
